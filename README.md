@@ -17,7 +17,7 @@ A simple application that detects and counts the number of trees in a vineyard. 
 - Add the video in the `videos` directory.
 - Add the model-specific data in the `models` directory
 - Run the detector :
-```
+```sh
 python3 scripts/detect-trees.py --iv <path-to-input-video-file>  \
 --ov <path-to-output-video-file> \
 --cfg <path-to-model-cfg-file> \
