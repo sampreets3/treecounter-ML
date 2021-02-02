@@ -3,20 +3,36 @@ import argparse as ap
 import cv2
 
 #Configure the argument parser----------------------------
+parser = ap.ArgumentParser(description="Detects and counts the number of trees in a video")
 
+parser.add_argument("--input", "-iv", required=True, help="The location of the input video file")
+parser.add_argument("--output", "-ov", required=True, help="The location of the output video file")
+parser.add_argument("--config", "-cfg", required=False, help="The model configuration file")
+parser.add_argument("--weights", "-w", required=False, help="The model weights file")
+parser.add_argument("--classes", "-c", required=False, help="The file containing the class descriptions")
+args = parser.parse_args()
+
+# Default usage
+"""
+python3 scripts/detect-trees.py --iv videos/video3.mp4  \
+--ov videos/test.avi \
+--cfg models/yolov3/cfg/yolov3_custom.cfg \
+--w models/yolov3/weights/yolov3_custom_final.weights \
+--c models/yolov3/classes.names
+"""
 #---------------------------------------------------------
 
 # set the VideoCapture and VideoWriter objects------------
-cap = cv2.VideoCapture('videos/video3.mp4')
+cap = cv2.VideoCapture(str(args.input))
 
 fourcc = cv2.VideoWriter_fourcc(*'DIVX')
-out = cv2.VideoWriter('videos/test.avi',fourcc, 25.0, (800,600))
+out = cv2.VideoWriter(str(args.output),fourcc, 25.0, (800,600))
 #---------------------------------------------------------
 
 #Parameters for the darknet-------------------------------
-config = 'models/yolov3/cfg/yolov3_custom.cfg'
-weights = 'models/yolov3/weights/yolov3_custom_final.weights'
-names = 'models/yolov3/classes.names'
+config = str(args.config)
+weights = str(args.weights)
+names = str(args.classes)
 CONF_THRESH, NMS_THRESH = 0.1, 0.1
 #---------------------------------------------------------
 
@@ -37,6 +53,7 @@ line_thickness = 2
 #---------------------------------------------------------
 
 # Load the network----------------------------------------
+#net = cv2.dnn.readNetFromDarknet(config, weights)
 net = cv2.dnn.readNetFromDarknet(config, weights)
 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
 net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
