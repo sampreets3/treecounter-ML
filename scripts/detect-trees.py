@@ -1,6 +1,8 @@
 import numpy as np
 import argparse as ap
+import utils
 import cv2
+
 
 #Configure the argument parser----------------------------
 parser = ap.ArgumentParser(description="Detects and counts the number of trees in a video")
@@ -14,11 +16,12 @@ args = parser.parse_args()
 
 # Default usage
 """
-python3 scripts/detect-trees.py --iv videos/video3.mp4  \
---ov videos/test.avi \
---cfg models/yolov3/cfg/yolov3_custom.cfg \
---w models/yolov3/weights/yolov3_custom_final.weights \
---c models/yolov3/classes.names
+python3 scripts/detect-trees.py \
+-iv videos/video3.mp4  \
+-ov videos/test.avi \
+-cfg models/yolov3/cfg/yolov3_custom.cfg \
+-w models/yolov3/weights/yolov3_custom_final.weights \
+-c models/yolov3/classes.names
 """
 #---------------------------------------------------------
 
@@ -61,9 +64,6 @@ layers = net.getLayerNames()
 output_layers = [layers[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 #---------------------------------------------------------
 
-def get_centroid(x1, y1, x2, y2):
-    return int((x1+x2)/2), int((y1+y2)/2)
-
 while(True):
     i = i + 1
     if (i % frameSkip == 0):
@@ -92,7 +92,7 @@ while(True):
                     x = int(center_x - w / 2)
                     y = int(center_y - h / 2)
                     b_boxes.append([x, y, int(w), int(h)])
-                    centroid_x, centroid_y = get_centroid(x, y, x+int(w), y+int(h))
+                    centroid_x, centroid_y = utils.get_centroid(x, y, x+int(w), y+int(h))
                     centroids.append([centroid_x, centroid_y])
                     # Add a horizontal line, and count
 
