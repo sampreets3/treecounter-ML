@@ -1,5 +1,5 @@
 # treecounter-ML
-A simple application that detects and counts the number of trees in a vineyard. Makes use of ![darknet](https://pjreddie.com/darknet/) and ![OpenCV](https://opencv.org/).
+A simple application that detects and counts the number of trees in a vineyard. Makes use of [darknet](https://pjreddie.com/darknet/) and [OpenCV](https://opencv.org/).
 
 <p align="center">
     <img src="imgs/test.gif" width="600" height="400">                           
