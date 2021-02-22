@@ -49,7 +49,12 @@ line_start = (0, 500)
 line_end   = (800, 500)
 
 line_color = (255, 0, 0)
+alt_line_color = (0, 0, 255)
 line_thickness = 2
+#---------------------------------------------------------
+
+# Global variable to count trees -------------------------
+treeNum = 0
 #---------------------------------------------------------
 
 # Load the network----------------------------------------
@@ -114,8 +119,13 @@ while(True):
                                 c_x, c_y = c[0], c[1]
                                 cv2.circle(img, (c_x, c_y), radius=2, color=(0, 255, 255), thickness=2)
                                 cv2.line(img, line_start, line_end, line_color, line_thickness)
-                                cv2.putText(img, str(i), (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (128, 120, 68), 2)
 
+                                #if(c_y > 500):
+                                #    treeNum = treeNum + 1
+
+                                #cv2.putText(img, str(treeNum), (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (128, 120, 68), 2)
+
+                                cv2.line(img, (c_x, c_y), (c_x, 500), alt_line_color, line_thickness)
         # Display the resulting frame
         cv2.imshow('image',img)
         out.write(img)
