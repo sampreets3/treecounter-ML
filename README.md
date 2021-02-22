@@ -29,7 +29,7 @@ python3 scripts/detect-trees.py \
 
 ### Common Problems:
 
- - [![GtkMessage exception](https://img.shields.io/badge/GtkMessage-fixed-green.svg)](https://shields.io/) **Gtk-Message: Failed to load module "canberra-gtk-module" : ** You can fix the issue by installing the gtk and gtk3 modules `sudo apt install libcanberra-gtk-module libcanberra-gtk3-module`
+ - [![GtkMessage-fixed](https://img.shields.io/badge/GtkMessage-fixed-green.svg)](https://shields.io/) **Gtk-Message: Failed to load module "canberra-gtk-module" :** You can fix the issue by installing the gtk and gtk3 modules `sudo apt install libcanberra-gtk-module libcanberra-gtk3-module`
 
 ### Maintainer Information
 
