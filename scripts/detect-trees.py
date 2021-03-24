@@ -9,9 +9,9 @@ parser = ap.ArgumentParser(description="Detects and counts the number of trees i
 
 parser.add_argument("--input", "-iv", required=True, help="The location of the input video file")
 parser.add_argument("--output", "-ov", required=True, help="The location of the output video file")
-parser.add_argument("--config", "-cfg", required=False, help="The model configuration file")
-parser.add_argument("--weights", "-w", required=False, help="The model weights file")
-parser.add_argument("--classes", "-c", required=False, help="The file containing the class descriptions")
+parser.add_argument("--config", "-cfg", required=False, default="models/yolov4/yolov4-custom.cfg", help="The model configuration file")
+parser.add_argument("--weights", "-w", required=False, default="models/yolov4/yolov4-custom_4000.weights", help="The model weights file")
+parser.add_argument("--classes", "-c", required=False, default="models/yolov4/classes-3.names", help="The file containing the class descriptions")
 args = parser.parse_args()
 
 # Default usage
@@ -22,13 +22,18 @@ python3 scripts/detect-trees.py \
 -cfg models/yolov3/cfg/yolov3_custom.cfg \
 -w models/yolov3/weights/yolov3_custom_final.weights \
 -c models/yolov3/classes.names
+
+    OR 
+
+python3 scripts/detect-trees.py -iv videos/video1.mp4 -ov videos/test.mp4
+
 """
 #---------------------------------------------------------
 
 # set the VideoCapture and VideoWriter objects------------
 cap = cv2.VideoCapture(str(args.input))
 
-fourcc = cv2.VideoWriter_fourcc(*'DIVX')
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter(str(args.output),fourcc, 25.0, (800,600))
 #---------------------------------------------------------
 
@@ -44,7 +49,7 @@ i = 0
 frameSkip = 25
 #---------------------------------------------------------
 
-# LOS configurations--------------------------------------
+# LOS configurations (If the centroid crosses this line, count it)
 line_start = (0, 500)
 line_end   = (800, 500)
 
@@ -58,7 +63,6 @@ treeNum = 0
 #---------------------------------------------------------
 
 # Load the network----------------------------------------
-#net = cv2.dnn.readNetFromDarknet(config, weights)
 net = cv2.dnn.readNetFromDarknet(config, weights)
 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
 net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
@@ -72,12 +76,13 @@ while(True):
         # Capture frame-by-frame
         ret, frame = cap.read()
         img = cv2.resize(frame,(800, 600))
-        # Our operations on the frame come here
-        #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
         height, width= img.shape[:2]
 
         blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), swapRB=True, crop=False)
         net.setInput(blob)
+
+        # Perform a forward pass through the net
         layer_outputs = net.forward(output_layers)
 
         class_ids, confidences, b_boxes = [], [], []
@@ -94,11 +99,11 @@ while(True):
                     x = int(center_x - w / 2)
                     y = int(center_y - h / 2)
                     b_boxes.append([x, y, int(w), int(h)])
+
+                    # Obtain the centroids for each bounding box
                     centroid_x, centroid_y = utils.get_centroid(x, y, x+int(w), y+int(h))
                     centroids.append([centroid_x, centroid_y])
-                    # Add a horizontal line, and count
-
-
+                    
                     confidences.append(float(confidence))
                     class_ids.append(int(class_id))
 
@@ -110,6 +115,7 @@ while(True):
                         classes = [line.strip() for line in f.readlines()]
                         colors = np.random.uniform(0, 255, size=(len(classes), 3))
 
+                        
                         for index in indices:
                             x, y, w, h = b_boxes[index]
                             cv2.rectangle(img, (x, y), (x + w, y + h), (255, 255, 255), 2)
@@ -117,15 +123,20 @@ while(True):
 
                             for c in centroids:
                                 c_x, c_y = c[0], c[1]
-                                cv2.circle(img, (c_x, c_y), radius=2, color=(0, 255, 255), thickness=2)
+                                cv2.circle(img, (c_x, c_y), radius=2, color=(0, 255, 255), thickness=1)
                                 cv2.line(img, line_start, line_end, line_color, line_thickness)
 
-                                #if(c_y > 500):
+                                # This is a VERY stupid way of counting
+                                # as it will count the same object in multiple 
+                                # frames
+                                #if(c_y > 500):             
                                 #    treeNum = treeNum + 1
 
                                 #cv2.putText(img, str(treeNum), (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (128, 120, 68), 2)
 
+                                # Show a red line for the distance from the centroid to the counting line(at 500 px height)
                                 cv2.line(img, (c_x, c_y), (c_x, 500), alt_line_color, line_thickness)
+        
         # Display the resulting frame
         cv2.imshow('image',img)
         out.write(img)
